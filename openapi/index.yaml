@@ -5,7 +5,7 @@ info:
   description: >
     # IO API for Bonus Vacanze
 host: api-gad.io.italia.it
-basePath: "/api/bonus/v1"
+basePath: "/api/bonus-vacanze/v1"
 schemes:
   - https
 security:
