@@ -58,6 +58,17 @@ definitions:
         enum: [OK]
   BonusCode:
     type: string
+  RedeemedBonus:
+    type: object
+    properties:
+      bonus_code:
+        $ref: "#/definitions/BonusCode"
+      redeemed_at:
+        type: string
+        format: date-time
+    required:
+      - bonus_code
+      - redeemed_at
   RedeemedBonuses:
     type: object
     properties:
