@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: 1.0.0-draft1
+  version: 1.0.0-draft2
   title: IO BONUS API
   description: >
     # IO API for Bonus Vacanze
@@ -75,6 +75,6 @@ definitions:
       items:
         type: array
         items:
-          $ref: "#/definitions/BonusCode"
+          $ref: "#/definitions/RedeemedBonus"
     required:
       - items
