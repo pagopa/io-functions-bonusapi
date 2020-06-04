@@ -22,7 +22,7 @@ produces:
 paths:
   "/redeemed":
     post:
-      operationId: addRedeemBonuses
+      operationId: setBonusesAsRedeemed
       summary: Set bonuses status to redeemed
       description: TDB
       parameters:
@@ -72,7 +72,7 @@ definitions:
       total_redeemed_bonuses:
         type: number
         description: |-
-          The total number of bonuses activated (including the ones returned in the `items` property).
+          The total number of bonuses redeemed (including the ones returned in the `items` property).
           Can be used to check the alignment of databases.
     required:
       - batch_id
