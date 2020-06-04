@@ -56,7 +56,7 @@ definitions:
       status:
         type: string
         enum: [OK]
-  BonusID:
+  BonusCode:
     type: string
   RedeemedBonuses:
     type: object
@@ -64,6 +64,6 @@ definitions:
       items:
         type: array
         items:
-          $ref: "#/definitions/BonusID"
+          $ref: "#/definitions/BonusCode"
     required:
       - items
