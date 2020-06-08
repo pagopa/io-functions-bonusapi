@@ -63,7 +63,7 @@ parameters:
   - name: 'PRODUCTION_DEPLOY_TYPE'
     displayName: 'Method to achieve deployment in Production (if enabled):'
     type: string
-    default: deployToStagingSlot
+    default: deployToProductionSlot
     values:
       - deployToStagingSlot  
       - deployToProductionSlot
@@ -158,7 +158,7 @@ stages:
         steps:
         - template: azure-templates/make-build-steps.yml
           parameters:
-            make: install_dependencies
+            make: build
 
         - script: |
             yarn test:coverage
