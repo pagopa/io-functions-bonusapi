@@ -4,13 +4,11 @@ import * as express from "express";
 import { ContextMiddleware } from "io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import { RequiredBodyPayloadMiddleware } from "io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import {
-  IRequestMiddleware,
   withRequestMiddlewares,
   wrapRequestHandler
 } from "io-functions-commons/dist/src/utils/request_middleware";
 import {
   IResponseSuccessAccepted,
-  ResponseErrorFromValidationErrors,
   ResponseSuccessAccepted
 } from "italia-ts-commons/lib/responses";
 
