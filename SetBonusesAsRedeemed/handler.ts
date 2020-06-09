@@ -1,4 +1,5 @@
 import { Context } from "@azure/functions";
+import * as df from "durable-functions";
 import * as express from "express";
 
 import { ContextMiddleware } from "io-functions-commons/dist/src/utils/middlewares/context_middleware";
@@ -17,6 +18,7 @@ import {
   RequestAccepted,
   StatusEnum
 } from "../generated/definitions/RequestAccepted";
+import { OrchestratorInput as SetBonusesAsRedeemedOrchestratorInput } from "../SetBonusesAsRedeemedOrchestrator/handler";
 
 type ISetBonusesAsRedeemedHandler = (
   context: Context,
@@ -24,7 +26,15 @@ type ISetBonusesAsRedeemedHandler = (
 ) => Promise<IResponseSuccessAccepted<RequestAccepted>>;
 
 export function SetBonusesAsRedeemedHandler(): ISetBonusesAsRedeemedHandler {
-  return async (_, __) => {
+  return async (context, redeemedBonuses) => {
+    const client = df.getClient(context);
+
+    await client.startNew(
+      "SetBonusesAsRedeemedOrchestrator",
+      undefined,
+      SetBonusesAsRedeemedOrchestratorInput.encode(redeemedBonuses)
+    );
+
     return ResponseSuccessAccepted(undefined, {
       status: StatusEnum.OK
     });
