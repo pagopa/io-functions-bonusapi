@@ -11,6 +11,11 @@
       ]
     },
     {
+      "type": "orchestrationClient",
+      "direction": "in",
+      "name": "client"
+    },
+    {
       "type": "http",
       "direction": "out",
       "name": "res"
