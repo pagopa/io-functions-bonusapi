@@ -2,6 +2,7 @@ import { Context } from "@azure/functions";
 import * as express from "express";
 
 import { ContextMiddleware } from "io-functions-commons/dist/src/utils/middlewares/context_middleware";
+import { RequiredBodyPayloadMiddleware } from "io-functions-commons/dist/src/utils/middlewares/required_body_payload";
 import {
   IRequestMiddleware,
   withRequestMiddlewares,
@@ -24,21 +25,6 @@ type ISetBonusesAsRedeemedHandler = (
   redeemedBonuses: RedeemedBonuses
 ) => Promise<IResponseSuccessAccepted<RequestAccepted>>;
 
-/**
- * A request middleware that validates the Message payload.
- */
-export const RedeemedBonusesMiddleware: IRequestMiddleware<
-  "IResponseErrorValidation",
-  RedeemedBonuses
-> = request =>
-  new Promise(resolve => {
-    return resolve(
-      RedeemedBonuses.decode(request.body).mapLeft(
-        ResponseErrorFromValidationErrors(RedeemedBonuses)
-      )
-    );
-  });
-
 export function SetBonusesAsRedeemedHandler(): ISetBonusesAsRedeemedHandler {
   return async (_, __) => {
     return ResponseSuccessAccepted(undefined, {
@@ -53,7 +39,7 @@ export function SetBonusesAsRedeemed(): express.RequestHandler {
   const middlewaresWrap = withRequestMiddlewares(
     // Extract Azure Functions bindings
     ContextMiddleware(),
-    RedeemedBonusesMiddleware
+    RequiredBodyPayloadMiddleware(RedeemedBonuses)
   );
 
   return wrapRequestHandler(middlewaresWrap(handler));
