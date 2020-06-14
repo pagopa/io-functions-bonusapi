@@ -18,7 +18,7 @@ import {
   RequestAccepted,
   StatusEnum
 } from "../generated/definitions/RequestAccepted";
-import { OrchestratorInput as SetBonusesAsRedeemedOrchestratorInput } from "../SetBonusesAsRedeemedOrchestrator/handler";
+import { OrchestratorInput as ProcessRedeemedBonusesOrchestratorInput } from "../ProcessRedeemedBonusesOrchestrator/handler";
 
 type ISetBonusesAsRedeemedHandler = (
   context: Context,
@@ -30,9 +30,9 @@ export function SetBonusesAsRedeemedHandler(): ISetBonusesAsRedeemedHandler {
     const client = df.getClient(context);
 
     await client.startNew(
-      "SetBonusesAsRedeemedOrchestrator",
+      "ProcessRedeemedBonusesOrchestrator",
       undefined,
-      SetBonusesAsRedeemedOrchestratorInput.encode(redeemedBonuses)
+      ProcessRedeemedBonusesOrchestratorInput.encode(redeemedBonuses)
     );
 
     return ResponseSuccessAccepted(undefined, {

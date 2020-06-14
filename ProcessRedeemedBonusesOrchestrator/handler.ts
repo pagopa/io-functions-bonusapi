@@ -9,7 +9,7 @@ import {
 import { readableReport } from "italia-ts-commons/lib/reporters";
 
 import { RedeemedBonuses } from "../generated/definitions/RedeemedBonuses";
-import { ActivityInput as SetBonusAsRedeemedActivityInput } from "../SetBonusAsRedeemedActivity/handler";
+import { OrchestratorInput as ProcessRedeemedBonusOrchestratorInput } from "../ProcessRedeemedBonusOrchestrator/handler";
 
 export const OrchestratorInput = RedeemedBonuses;
 
@@ -18,7 +18,7 @@ export type OrchestratorInput = t.TypeOf<typeof OrchestratorInput>;
 export const handler = function*(
   context: IOrchestrationFunctionContext
 ): Generator {
-  const logPrefix = "SetBonusesAsRedeemedOrchestrator";
+  const logPrefix = "ProcessRedeemedBonusesOrchestrator";
   // Get and decode orchestrator input
   const input = context.df.getInput();
   const errorOrOrchestratorInput = OrchestratorInput.decode(input);
@@ -45,14 +45,14 @@ export const handler = function*(
     // Log already done in the activity
   }
 
-  // STEP 2: Create an activity task for each bonus redeemed
+  // STEP 2: Create an suborchestrator task for each bonus redeemed
   // tslint:disable-next-line: readonly-array
   const tasks: Task[] = [];
-  for (const bonusRedeemed of redeemedBonuses.items) {
+  for (const redeemedBonus of redeemedBonuses.items) {
     tasks.push(
-      context.df.callActivity(
-        "SetBonusAsRedeemedActivity",
-        SetBonusAsRedeemedActivityInput.encode(bonusRedeemed)
+      context.df.callSubOrchestrator(
+        "ProcessRedeemedBonusOrchestrator",
+        ProcessRedeemedBonusOrchestratorInput.encode(redeemedBonus)
       )
     );
   }
