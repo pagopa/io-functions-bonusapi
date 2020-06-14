@@ -33,12 +33,22 @@ export const handler = function*(
     return false;
   }
 
-  const orchestratorInput = errorOrOrchestratorInput.value;
+  const redeemedBonuses = errorOrOrchestratorInput.value;
 
-  // Create an activity task for each bonus redeemed
+  // STEP 1: Try to store the request as blob
+  // It will be useful if the db get corrupted to have a backup of all the requests.
+  // In case of error we don't want to stop the process.
+  try {
+    // TODO: Add retry?
+    yield context.df.callActivity("SaveRequestActivity", redeemedBonuses);
+  } catch (e) {
+    // Log already done in the activity
+  }
+
+  // STEP 2: Create an activity task for each bonus redeemed
   // tslint:disable-next-line: readonly-array
   const tasks: Task[] = [];
-  for (const bonusRedeemed of orchestratorInput.items) {
+  for (const bonusRedeemed of redeemedBonuses.items) {
     tasks.push(
       context.df.callActivity(
         "SetBonusAsRedeemedActivity",

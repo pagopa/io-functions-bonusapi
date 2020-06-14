@@ -1,0 +1,17 @@
+{
+  "bindings": [
+    {
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
+    },
+    {
+      "name": "outputBlob",
+      "type": "blob",
+      "direction": "out",
+      "path": "redeemed-requests/{DateTime}.json",
+      "connection": "STORAGE_BONUS_CONNECTION_STRING"
+    }
+  ],
+  "scriptFile": "../dist/SaveRequestActivity/index.js"
+}
