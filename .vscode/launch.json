@@ -34,20 +34,11 @@
       }
     },
     {
+      "name": "Attach to Node Functions",
       "type": "node",
       "request": "attach",
-      "name": "Docker: Attach to Node",
-      "protocol": "auto",
-      "port": 5860,
-      "restart": true,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "/usr/src/app",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "skipFiles": [
-        "<node_internals>/**/*.js",
-      ]
-    } 
+      "port": 9229,
+      "preLaunchTask": "func: host start"
+    }
   ]
 }
