@@ -21,5 +21,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/SetBonusesAsRedeemed/index.js"
+  "scriptFile": "../dist/AcceptRedeemedRequest/index.js"
 }

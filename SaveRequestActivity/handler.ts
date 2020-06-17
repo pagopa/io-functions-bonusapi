@@ -4,9 +4,12 @@ import { Context } from "@azure/functions";
 
 import { readableReport } from "italia-ts-commons/lib/reporters";
 
-import { RedeemedBonuses } from "../generated/definitions/RedeemedBonuses";
+import { RedeemedRequest } from "../generated/definitions/RedeemedRequest";
 
-export const ActivityInput = RedeemedBonuses;
+export const ActivityInput = t.interface({
+  redeemedRequest: RedeemedRequest,
+  requestId: t.string
+});
 
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
 

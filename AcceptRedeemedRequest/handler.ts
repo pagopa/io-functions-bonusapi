@@ -13,26 +13,26 @@ import {
   ResponseSuccessAccepted
 } from "italia-ts-commons/lib/responses";
 
-import { RedeemedBonuses } from "../generated/definitions/RedeemedBonuses";
+import { RedeemedRequest } from "../generated/definitions/RedeemedRequest";
 import {
   RequestAccepted,
   StatusEnum
 } from "../generated/definitions/RequestAccepted";
-import { OrchestratorInput as ProcessRedeemedBonusesOrchestratorInput } from "../ProcessRedeemedBonusesOrchestrator/handler";
+import { OrchestratorInput as ProcessRedeemedRequestOrchestratorInput } from "../ProcessRedeemedRequestOrchestrator/handler";
 
-type ISetBonusesAsRedeemedHandler = (
+type IAcceptRedeemedRequestHandler = (
   context: Context,
-  redeemedBonuses: RedeemedBonuses
+  redeemedRequest: RedeemedRequest
 ) => Promise<IResponseSuccessAccepted<RequestAccepted>>;
 
-export function SetBonusesAsRedeemedHandler(): ISetBonusesAsRedeemedHandler {
-  return async (context, redeemedBonuses) => {
+export function AcceptRedeemedRequestHandler(): IAcceptRedeemedRequestHandler {
+  return async (context, redeemedRequest) => {
     const client = df.getClient(context);
 
     await client.startNew(
-      "ProcessRedeemedBonusesOrchestrator",
+      "ProcessRedeemedRequestOrchestrator",
       undefined,
-      ProcessRedeemedBonusesOrchestratorInput.encode(redeemedBonuses)
+      ProcessRedeemedRequestOrchestratorInput.encode(redeemedRequest)
     );
 
     return ResponseSuccessAccepted(undefined, {
@@ -41,13 +41,13 @@ export function SetBonusesAsRedeemedHandler(): ISetBonusesAsRedeemedHandler {
   };
 }
 
-export function SetBonusesAsRedeemed(): express.RequestHandler {
-  const handler = SetBonusesAsRedeemedHandler();
+export function AcceptRedeemedRequest(): express.RequestHandler {
+  const handler = AcceptRedeemedRequestHandler();
 
   const middlewaresWrap = withRequestMiddlewares(
     // Extract Azure Functions bindings
     ContextMiddleware(),
-    RequiredBodyPayloadMiddleware(RedeemedBonuses)
+    RequiredBodyPayloadMiddleware(RedeemedRequest)
   );
 
   return wrapRequestHandler(middlewaresWrap(handler));
