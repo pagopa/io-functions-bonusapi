@@ -1,0 +1,20 @@
+{
+  "bindings": [
+    {
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
+    },
+    {
+      "name": "bonusActivation",
+      "type": "cosmosDB",
+      "direction": "in",
+      "databaseName": "bonus",
+      "collectionName": "bonus-activations",
+      "connectionStringSetting": "COSMOSDB_BONUS_CONNECTION_STRING",
+      "id": "{id}",
+      "partitionKey": "{id}"
+    }
+  ],
+  "scriptFile": "../dist/RetrieveBonusActivity/index.js"
+}
