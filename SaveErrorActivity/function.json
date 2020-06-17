@@ -1,0 +1,17 @@
+{
+  "bindings": [
+    {
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
+    },
+    {
+      "name": "redeemedErrors",
+      "type": "table",
+      "direction": "out",
+      "tableName": "RedeemedErrors",
+      "connection": "STORAGE_BONUS_CONNECTION_STRING"
+    }
+  ],
+  "scriptFile": "../dist/SaveErrorActivity/index.js"
+}
