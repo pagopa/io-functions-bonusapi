@@ -16,24 +16,27 @@ describe("getSaveRequestActivityHandler", () => {
     const handler = getSaveRequestActivityHandler();
 
     const input = ActivityInput.encode({
-      items: [
-        {
-          bonus_code: "AAAAAAAAAAAA",
-          redeemed_at: new Date()
-        }
-      ]
+      redeemedRequest: {
+        items: [
+          {
+            bonus_code: "AAAAAAAAAAAA",
+            redeemed_at: new Date()
+          }
+        ]
+      },
+      requestId: "2011-10-05T14:48:00.000Z-d3b72dddefce4e758d92f4d411567177"
     });
 
-    const contextMockWithBinding = {
+    const contextMockWithBindings = {
       ...contextMock,
       bindings: {
         outputBlob: undefined
       }
     };
 
-    const result = await handler(contextMockWithBinding, input);
+    const result = await handler(contextMockWithBindings, input);
 
-    expect(contextMockWithBinding.bindings.outputBlob).toEqual(input);
+    expect(contextMockWithBindings.bindings.outputBlob).toEqual(input);
     expect(result.kind === "SUCCESS").toBeTruthy();
   });
 });

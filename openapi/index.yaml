@@ -22,14 +22,14 @@ produces:
 paths:
   "/redeemed":
     post:
-      operationId: setBonusesAsRedeemed
-      summary: Set bonuses status to redeemed
+      operationId: acceptReedemedRequest
+      summary: Accept the request of redeemed bonuses
       description: TDB
       parameters:
-        - name: redeemed_bonuses
+        - name: redeemed_request
           in: body
           schema:
-            $ref: "#/definitions/RedeemedBonuses"
+            $ref: "#/definitions/RedeemedRequest"
       responses:
         "202":
           description: Request accepted
@@ -69,7 +69,7 @@ definitions:
     required:
       - bonus_code
       - redeemed_at
-  RedeemedBonuses:
+  RedeemedRequest:
     type: object
     properties:
       items:

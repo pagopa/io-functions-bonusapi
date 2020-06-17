@@ -3,14 +3,15 @@ import * as express from "express";
 import { secureExpressApp } from "io-functions-commons/dist/src/utils/express";
 import { setAppContext } from "io-functions-commons/dist/src/utils/middlewares/context_middleware";
 import createAzureFunctionHandler from "io-functions-express/dist/src/createAzureFunctionsHandler";
-import { SetBonusesAsRedeemed } from "./handler";
+
+import { AcceptRedeemedRequest } from "./handler";
 
 // Setup Express
 const app = express();
 secureExpressApp(app);
 
 // Add express route
-app.post("/api/bonus-vacanze/v1/redeemed", SetBonusesAsRedeemed());
+app.post("/api/bonus-vacanze/v1/redeemed", AcceptRedeemedRequest());
 
 const azureFunctionHandler = createAzureFunctionHandler(app);
 

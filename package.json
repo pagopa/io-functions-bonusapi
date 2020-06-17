@@ -23,8 +23,6 @@
     "dist:zip": "zip -r dist.zip . --exclude @.funcignore --exclude .funcignore",
     "predeploy": "npm-run-all generate build dist:modules",
     "pregenerate": "shx rm -rf ./generated/models && shx mkdir -p ./generated/models && shx rm -rf ./generated/definitions && shx mkdir -p ./generated/definitions",
-    "generate:models-bonus": " gen-api-models --camel-cased --api-spec https://raw.githubusercontent.com/pagopa/io-functions-bonus/master/openapi/index.yaml --out-dir ./generated/models",
-    "generate:models-bonusapi": "gen-api-models --camel-cased --api-spec ./openapi/index.yaml --out-dir ./generated/models",
     "generate:definitions-bonusapi": "gen-api-models --request-types --api-spec ./openapi/index.yaml --out-dir ./generated/definitions",
     "generate": "npm-run-all generate:*"
   },
