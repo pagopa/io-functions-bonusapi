@@ -6,10 +6,9 @@
     }
   },
   "extensions": {
-      "http": {
-        "routePrefix": "api/bonus-vacanze"
-      },
-
+    "http": {
+      "routePrefix": "api/bonus-vacanze"
+    },
     "durableTask": {
       "hubName": "%SLOT_TASK_HUBNAME%",
       "storageProvider": {
