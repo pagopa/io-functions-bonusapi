@@ -1,4 +1,8 @@
+import { fromNullable } from "fp-ts/lib/Option";
+
 import * as ai from "applicationinsights";
+import { EventTelemetry } from "applicationinsights/out/Declarations/Contracts";
+
 import { initAppInsights } from "italia-ts-commons/lib/appinsights";
 import { IntegerFromString } from "italia-ts-commons/lib/numbers";
 import { NonEmptyString } from "italia-ts-commons/lib/strings";
@@ -21,3 +25,9 @@ export const initTelemetryClient = (env = process.env) =>
             ).getOrElse(DEFAULT_SAMPLING_PERCENTAGE)
           })
       );
+
+export const trackEvent = (event: EventTelemetry) => {
+  fromNullable(initTelemetryClient()).map(_ => _.trackEvent(event));
+};
+
+export type TrackEventT = typeof trackEvent;
