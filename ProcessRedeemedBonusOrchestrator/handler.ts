@@ -55,10 +55,12 @@ const getLogHandlerError = (
   context: IOrchestrationFunctionContext,
   logPrefix: string
 ) => (handlerError: IHandlerError) => {
-  context.log.error(`${logPrefix}|${handlerError.errorMessage}`);
-  context.log.verbose(
-    `${logPrefix}|${handlerError.errorMessage}|ERROR=${handlerError.errorDetail}`
-  );
+  if (!context.df.isReplaying) {
+    context.log.error(`${logPrefix}|${handlerError.errorMessage}`);
+    context.log.verbose(
+      `${logPrefix}|${handlerError.errorMessage}|ERROR=${handlerError.errorDetail}`
+    );
+  }
 };
 
 /**
@@ -185,9 +187,11 @@ export const getHandler = (trackEvent: TrackEventT) =>
     }
 
     // STEP 5: Track an event using Application Insights
-    trackEvent({
-      name: "TEST_PROCESS_REDEEMED_BONUS_SUCCESS"
-    });
+    if (!context.df.isReplaying) {
+      trackEvent({
+        name: "TEST_PROCESS_REDEEMED_BONUS_SUCCESS"
+      });
+    }
 
     // STEP 6: Send notification
 
