@@ -54,6 +54,7 @@
     "typescript": "^3.9.0"
   },
   "dependencies": {
+    "@azure/cosmos": "^3.7.2",
     "applicationinsights": "^1.7.5",
     "date-fns": "^2.14.0",
     "documentdb": "^1.15.3",
