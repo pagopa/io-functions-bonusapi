@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: 1.0.0-draft2
+  version: 1.0.0
   title: IO BONUS API
   description: >
     # IO API for Bonus Vacanze
