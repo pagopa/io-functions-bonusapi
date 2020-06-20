@@ -5,7 +5,7 @@ import { toError } from "fp-ts/lib/Either";
 import { fromNullable, Option } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 
-import { Container, CosmosClient } from "@azure/cosmos";
+import { ConsistencyLevel, Container, CosmosClient } from "@azure/cosmos";
 
 import { getRequiredStringEnv } from "io-functions-commons/dist/src/utils/env";
 
@@ -13,6 +13,7 @@ const cosmosDbUri = getRequiredStringEnv("COSMOSDB_BONUS_URI");
 const masterKey = getRequiredStringEnv("COSMOSDB_BONUS_KEY");
 
 export const cosmosClient = new CosmosClient({
+  consistencyLevel: ConsistencyLevel.Strong,
   endpoint: cosmosDbUri,
   key: masterKey
 });
