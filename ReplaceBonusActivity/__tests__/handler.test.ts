@@ -10,7 +10,7 @@ import {
 import { ActivityInput, getReplaceBonusActivityHandler } from "../handler";
 
 const activityInput = {
-  id: "AAAAAAAAAAAA",
+  ...aBonusActivation,
   redeemedAt: new Date(),
   status: BonusActivationStatusEnum.REDEEMED
 };
