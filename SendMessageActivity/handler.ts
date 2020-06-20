@@ -24,8 +24,7 @@ export type ActivityInput = t.TypeOf<typeof ActivityInput>;
 const ActivityResultSuccess = t.interface({
   kind: t.literal("SUCCESS")
 });
-
-type SendMessageActivityResultSuccess = t.TypeOf<typeof ActivityResultSuccess>;
+type ActivityResultSuccess = t.TypeOf<typeof ActivityResultSuccess>;
 
 const ActivityResultFailure = t.interface({
   kind: t.literal("FAILURE"),

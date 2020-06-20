@@ -4,9 +4,7 @@ import * as t from "io-ts";
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
 
 import { readableReport } from "italia-ts-commons/lib/reporters";
-import { FiscalCode } from "italia-ts-commons/lib/strings";
 
-import { aMessageContent } from "../__mocks__/models";
 import { RedeemedBonus } from "../generated/definitions/RedeemedBonus";
 import {
   BonusActivation,
