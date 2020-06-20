@@ -1,9 +1,9 @@
 import { Either, isLeft, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
-import { readableReport } from "italia-ts-commons/lib/reporters";
-
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
+
+import { readableReport } from "italia-ts-commons/lib/reporters";
 
 import { RedeemedBonus } from "../generated/definitions/RedeemedBonus";
 import {
@@ -15,7 +15,9 @@ import {
   ActivityResult as ReadBonusActivityResult
 } from "../ReadBonusActivity/handler";
 import { ActivityResult as ReplaceBonusActivityResult } from "../ReplaceBonusActivity/handler";
+import { ActivityInput as SendMessageActivityInput } from "../SendMessageActivity/handler";
 import { TrackEventT } from "../utils/appinsights";
+import { getRedeemedBonusMessageContent } from "../utils/messages";
 
 export const OrchestratorInput = t.interface({
   redeemedBonus: RedeemedBonus,
@@ -193,7 +195,29 @@ export const getHandler = (trackEvent: TrackEventT) =>
       });
     }
 
-    // STEP 6: Send notification
+    // STEP 6: Send messages
+    // Retrieve the list of the fiscalcodes and sort using localCompare
+    const fiscalCodes = bonus.dsuRequest.familyMembers
+      .map(_ => _.fiscalCode)
+      .sort((a, b) => a.localeCompare(b));
+
+    for (const fiscalCode of fiscalCodes) {
+      yield context.df.callActivityWithRetry(
+        "SendMessageActivity",
+        {
+          backoffCoefficient: 1.5,
+          firstRetryIntervalInMilliseconds: 1000,
+          maxNumberOfAttempts: 10,
+          maxRetryIntervalInMilliseconds: 3600 * 100,
+          retryTimeoutInMilliseconds: 3600 * 1000
+        },
+        SendMessageActivityInput.encode({
+          checkProfile: true,
+          content: getRedeemedBonusMessageContent(redeemedBonus.redeemed_at),
+          fiscalCode
+        })
+      );
+    }
 
     return true;
   };

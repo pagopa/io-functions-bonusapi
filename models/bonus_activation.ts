@@ -1,9 +1,20 @@
 import * as t from "io-ts";
 
 import { UTCISODateFromString } from "italia-ts-commons/lib/dates";
+import { FiscalCode } from "italia-ts-commons/lib/strings";
 import { enumType } from "italia-ts-commons/lib/types";
 
 export const BONUS_ACTIVATION_COLLECTION_NAME = "bonus-activations";
+
+export const FamilyMember = t.interface({
+  fiscalCode: FiscalCode
+});
+export type FamilyMember = t.TypeOf<typeof FamilyMember>;
+
+export const Dsu = t.interface({
+  familyMembers: t.readonlyArray(FamilyMember)
+});
+export type Dsu = t.TypeOf<typeof Dsu>;
 
 export enum BonusActivationStatusEnum {
   "PROCESSING" = "PROCESSING",
@@ -37,6 +48,9 @@ export const BonusActivationStatus = enumType<BonusActivationStatusEnum>(
 export const BonusActivation = t.intersection([
   t.interface({
     id: t.string,
+
+    dsuRequest: Dsu,
+
     status: BonusActivationStatus
   }),
   t.partial({
