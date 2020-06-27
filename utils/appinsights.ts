@@ -10,6 +10,8 @@ import { initAppInsights } from "italia-ts-commons/lib/appinsights";
 import { IntegerFromString } from "italia-ts-commons/lib/numbers";
 import { NonEmptyString } from "italia-ts-commons/lib/strings";
 
+const disableTrackException = process.env.DISABLE_TRACK_EXCEPTION === "true";
+
 // the internal function runtime has MaxTelemetryItem per second set to 20 by default
 // @see https://github.com/Azure/azure-functions-host/blob/master/src/WebJobs.Script/Config/ApplicationInsightsLoggerOptionsSetup.cs#L29
 const DEFAULT_SAMPLING_PERCENTAGE = 20;
@@ -39,10 +41,12 @@ export const trackException = (exception: ExceptionTelemetry) => {
 export type TrackExceptionT = typeof trackException;
 
 export const trackEvent = (event: EventTelemetry) => {
-  try {
-    fromNullable(initTelemetryClient()).map(_ => _.trackEvent(event));
-  } catch (e) {
-    // Ignore error
+  if (!disableTrackException) {
+    try {
+      fromNullable(initTelemetryClient()).map(_ => _.trackEvent(event));
+    } catch (e) {
+      // Ignore error
+    }
   }
 };
 export type TrackEventT = typeof trackEvent;
