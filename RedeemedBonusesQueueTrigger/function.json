@@ -1,0 +1,17 @@
+{
+  "bindings": [
+    {
+      "name": "inRedeemedBonusesQueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "redeemed-bonuses",
+      "connection": "STORAGE_BONUS_CONNECTION_STRING"
+    },
+    {
+      "name": "client",
+      "type": "orchestrationClient",
+      "direction": "in"
+    }
+  ],
+  "scriptFile": "../dist/RedeemedBonusesQueueTrigger/index.js"
+}

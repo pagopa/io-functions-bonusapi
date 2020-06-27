@@ -6,14 +6,17 @@ import {
   BONUS_ACTIVATION_COLLECTION_NAME,
   BonusActivation
 } from "../models/bonus_activation";
-import { cosmosClient, replaceContainerItemTask } from "../utils/cosmosdb";
+import {
+  cosmosBonusClient,
+  replaceContainerItemTask
+} from "../services/cosmosServices";
 import { getReplaceBonusActivityHandler } from "./handler";
 
 const cosmosdbBonusDatabaseName = getRequiredStringEnv(
   "COSMOSDB_BONUS_DATABASE_NAME"
 );
 
-const bonusActivationContainer = cosmosClient
+const bonusActivationContainer = cosmosBonusClient
   .database(cosmosdbBonusDatabaseName)
   .container(BONUS_ACTIVATION_COLLECTION_NAME);
 

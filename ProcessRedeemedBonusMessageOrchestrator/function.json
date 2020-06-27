@@ -6,5 +6,5 @@
       "direction": "in"
     }
   ],
-  "scriptFile": "../dist/ProcessRedeemedBonusOrchestrator/index.js"
+  "scriptFile": "../dist/ProcessRedeemedBonusMessageOrchestrator/index.js"
 }

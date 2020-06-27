@@ -1,5 +1,8 @@
 ﻿import * as df from "durable-functions";
-import { handler } from "./handler";
+
+import { getHandler } from "./handler";
+
+const handler = getHandler();
 
 const ProcessRedeemedRequestOrchestrator = df.orchestrator(handler);
 

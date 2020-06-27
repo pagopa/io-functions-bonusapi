@@ -1,16 +1,14 @@
-import { Option } from "fp-ts/lib/Option";
-import { fromEither } from "fp-ts/lib/TaskEither";
 import * as t from "io-ts";
 
 import { Context } from "@azure/functions";
 
-import { readableReport } from "italia-ts-commons/lib/reporters";
-
 import { ReadBonusActivationTaskT } from ".";
 import { BonusActivation } from "../models/bonus_activation";
+import { decodeOrThrowApplicationError } from "../utils/decode";
+import { ApplicationError } from "../utils/errors";
 
 export const ActivityInput = t.interface({
-  bonusID: t.string
+  bonusId: t.string
 });
 
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
@@ -21,25 +19,15 @@ export const ActivityResultFailure = t.interface({
 });
 export type ActivityResultFailure = t.TypeOf<typeof ActivityResultFailure>;
 
-export const ActivityResultSuccessNotFound = t.interface({
-  kind: t.literal("SUCCESS_BONUS_NOT_FOUND")
-});
-export type ActivityResultSuccessNotFound = t.TypeOf<
-  typeof ActivityResultSuccessNotFound
->;
-
-export const ActivityResultSuccessFound = t.interface({
+export const ActivityResultSuccess = t.interface({
   bonus: BonusActivation,
-  kind: t.literal("SUCCESS_BONUS_FOUND")
+  kind: t.literal("SUCCESS")
 });
-export type ActivityResultSuccessFound = t.TypeOf<
-  typeof ActivityResultSuccessFound
->;
+export type ActivityResultSuccess = t.TypeOf<typeof ActivityResultSuccess>;
 
 export const ActivityResult = t.taggedUnion("kind", [
   ActivityResultFailure,
-  ActivityResultSuccessNotFound,
-  ActivityResultSuccessFound
+  ActivityResultSuccess
 ]);
 export type ActivityResult = t.TypeOf<typeof ActivityResult>;
 
@@ -48,16 +36,12 @@ const failure = (reason: string): ActivityResult => ({
   reason
 });
 
-const success = (maybeBonusActivation: Option<BonusActivation>) =>
-  maybeBonusActivation.foldL<ActivityResult>(
-    () => ({
-      kind: "SUCCESS_BONUS_NOT_FOUND"
-    }),
-    bonusActivation => ({
-      bonus: bonusActivation,
-      kind: "SUCCESS_BONUS_FOUND"
-    })
-  );
+const success = (bonusActivation: BonusActivation): ActivityResult => ({
+  bonus: bonusActivation,
+  kind: "SUCCESS"
+});
+
+const logPrefix = "ReadBonusActivity";
 
 /**
  * Read the bonus from the db
@@ -66,23 +50,45 @@ export const getReadBonusActivityHandler = (
   readBonusActivationTask: ReturnType<ReadBonusActivationTaskT>
 ) => {
   return async (context: Context, input: unknown): Promise<ActivityResult> => {
-    const logPrefix = "ReadBonusActivity";
+    context.log.verbose(`${logPrefix}|Activity started`);
 
-    context.log.verbose(`${logPrefix}|INFO|Input: ${input}`);
+    try {
+      const { bonusId } = decodeOrThrowApplicationError(
+        ActivityInput,
+        input,
+        "Error decoding input"
+      );
 
-    return await fromEither(
-      // Decode input
-      ActivityInput.decode(input).mapLeft(
-        errs =>
-          new Error(
-            `${logPrefix}|Cannot decode input|ERROR=${readableReport(
-              errs
-            )}|INPUT=${JSON.stringify(input)}`
-          )
-      )
-    )
-      .chain(({ bonusID }) => readBonusActivationTask(bonusID))
-      .fold<ActivityResult>(error => failure(error.message), success)
-      .run();
+      return await readBonusActivationTask(bonusId)
+        .fold(
+          err => {
+            throw new ApplicationError(
+              "Error reading BonusActivation",
+              err.message,
+              true
+            );
+          },
+          maybeBonusActivation =>
+            maybeBonusActivation.foldL(() => {
+              throw new ApplicationError(
+                "Can't find BonusActivation",
+                `ID=${bonusId}`,
+                false
+              );
+            }, success)
+        )
+        .run();
+    } catch (e) {
+      if (e instanceof ApplicationError) {
+        if (e.rethrow) {
+          // Rethrow
+          throw e;
+        }
+        return failure(e.message);
+      }
+
+      // Unhandled error, just rethrow
+      throw e;
+    }
   };
 };
