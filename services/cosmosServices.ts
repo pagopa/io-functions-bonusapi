@@ -12,7 +12,7 @@ import { getRequiredStringEnv } from "io-functions-commons/dist/src/utils/env";
 const cosmosDbUri = getRequiredStringEnv("COSMOSDB_BONUS_URI");
 const masterKey = getRequiredStringEnv("COSMOSDB_BONUS_KEY");
 
-export const cosmosClient = new CosmosClient({
+export const cosmosBonusClient = new CosmosClient({
   consistencyLevel: ConsistencyLevel.Strong,
   endpoint: cosmosDbUri,
   key: masterKey

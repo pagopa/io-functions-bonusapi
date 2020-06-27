@@ -1,0 +1,24 @@
+{
+  "bindings": [
+    {
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
+    },
+    {
+      "name": "inRedeemedRequestBlob",
+      "type": "blob",
+      "direction": "in",
+      "path": "redeemed-requests/{directory}/{name}",
+      "connection": "STORAGE_BONUS_CONNECTION_STRING"
+    },
+    {
+      "name": "outRedeemedBonusesQueueItems",
+      "type": "queue",
+      "direction": "out",
+      "queueName": "redeemed-bonuses",
+      "connection": "STORAGE_BONUS_CONNECTION_STRING"
+    }
+  ],
+  "scriptFile": "../dist/SaveRedeemedRequestAsMessagesActivity/index.js"
+}

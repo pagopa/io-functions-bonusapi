@@ -1,7 +1,10 @@
 import { fromNullable } from "fp-ts/lib/Option";
 
 import * as ai from "applicationinsights";
-import { EventTelemetry } from "applicationinsights/out/Declarations/Contracts";
+import {
+  EventTelemetry,
+  ExceptionTelemetry
+} from "applicationinsights/out/Declarations/Contracts";
 
 import { initAppInsights } from "italia-ts-commons/lib/appinsights";
 import { IntegerFromString } from "italia-ts-commons/lib/numbers";
@@ -26,8 +29,20 @@ export const initTelemetryClient = (env = process.env) =>
           })
       );
 
-export const trackEvent = (event: EventTelemetry) => {
-  fromNullable(initTelemetryClient()).map(_ => _.trackEvent(event));
+export const trackException = (exception: ExceptionTelemetry) => {
+  try {
+    fromNullable(initTelemetryClient()).map(_ => _.trackException(exception));
+  } catch (e) {
+    // Ignore error
+  }
 };
+export type TrackExceptionT = typeof trackException;
 
+export const trackEvent = (event: EventTelemetry) => {
+  try {
+    fromNullable(initTelemetryClient()).map(_ => _.trackEvent(event));
+  } catch (e) {
+    // Ignore error
+  }
+};
 export type TrackEventT = typeof trackEvent;

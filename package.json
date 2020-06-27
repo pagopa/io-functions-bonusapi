@@ -55,7 +55,9 @@
   },
   "dependencies": {
     "@azure/cosmos": "^3.7.2",
+    "@azure/storage-blob": "^12.1.2",
     "applicationinsights": "^1.7.5",
+    "azure-storage": "^2.10.3",
     "date-fns": "^2.14.0",
     "documentdb": "^1.15.3",
     "durable-functions": "^1.4.1",
@@ -66,6 +68,7 @@
     "io-ts": "1.8.5",
     "italia-ts-commons": "^8.2.0",
     "node-fetch": "^2.6.0",
+    "uuid": "^8.2.0",
     "winston": "^3.2.1",
     "xmldom": "^0.3.0"
   },

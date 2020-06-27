@@ -1,0 +1,14 @@
+const items = [];
+
+for (let i = 0; i < 500; i++) {
+  items.push({
+    bonus_code: "ELRPAUFLF4GX",
+    redeemed_at: "2020-06-20T14:44:28Z"
+  });
+}
+
+const body = {
+  items
+};
+
+JSON.stringify(body);

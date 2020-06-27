@@ -1,4 +1,7 @@
-﻿import { getSaveErrorActivityHandler } from "./handler";
+﻿import { defaultTableStorageErrorLogger } from "../utils/loggers";
+import { getSaveErrorActivityHandler } from "./handler";
 
-const saveErrorActivityHandler = getSaveErrorActivityHandler();
+const saveErrorActivityHandler = getSaveErrorActivityHandler(
+  defaultTableStorageErrorLogger
+);
 export default saveErrorActivityHandler;

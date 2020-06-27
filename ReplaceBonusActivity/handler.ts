@@ -1,11 +1,10 @@
-import { fromEither } from "fp-ts/lib/TaskEither";
 import * as t from "io-ts";
 
 import { Context } from "@azure/functions";
 
-import { readableReport } from "italia-ts-commons/lib/reporters";
-
 import { BonusActivation } from "../models/bonus_activation";
+import { decodeOrThrowApplicationError } from "../utils/decode";
+import { ApplicationError } from "../utils/errors";
 import { RetrieveBonusActivationTaskT } from "./";
 
 export const ActivityInput = BonusActivation;
@@ -38,6 +37,8 @@ const success = (): ActivityResult => ({
   kind: "SUCCESS"
 });
 
+const logPrefix = "ReplaceBonusActivity";
+
 /**
  * Replace the bonus in the db
  */
@@ -45,23 +46,39 @@ export const getReplaceBonusActivityHandler = (
   replaceBonusActivationTask: ReturnType<RetrieveBonusActivationTaskT>
 ) => {
   return async (context: Context, input: unknown): Promise<ActivityResult> => {
-    const logPrefix = "ReplaceBonusActivity";
+    context.log.verbose(`${logPrefix}|Activity started`);
 
-    context.log.verbose(`${logPrefix}|INFO|Input: ${input}`);
+    try {
+      const bonusActivation = decodeOrThrowApplicationError(
+        ActivityInput,
+        input,
+        "Error decoding input"
+      );
 
-    return await fromEither(
-      // Decode input
-      ActivityInput.decode(input).mapLeft(
-        errs =>
-          new Error(
-            `${logPrefix}|Cannot decode input|ERROR=${readableReport(
-              errs
-            )}|INPUT=${JSON.stringify(input)}`
-          )
-      )
-    )
-      .chain(replaceBonusActivationTask)
-      .fold<ActivityResult>(error => failure(error.message), success)
-      .run();
+      return await replaceBonusActivationTask(bonusActivation)
+        .fold(
+          err => {
+            throw new ApplicationError(
+              "Error replacing BonusActivation",
+              err.message,
+              true
+            );
+          },
+          () => success()
+        )
+        .run();
+    } catch (e) {
+      if (e instanceof ApplicationError) {
+        if (e.rethrow) {
+          // Rethrow
+          throw e;
+        }
+
+        return failure(e.message);
+      }
+
+      // Unhandled error, just rethrow
+      throw e;
+    }
   };
 };
