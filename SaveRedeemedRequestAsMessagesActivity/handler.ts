@@ -14,25 +14,29 @@ export type ActivityInput = t.TypeOf<typeof ActivityInput>;
  */
 export const getSaveRedeemedRequestAsMessagesActivity = () => {
   return async (context: Context, input: unknown): Promise<void> => {
+    // Decode the input
     const redeemedRequestBlob = decodeOrThrowApplicationError(
       RedeemedRequestBlob,
       input
     );
 
+    // Get and decode the blob from the binding
     const redeemedRequest = decodeOrThrowApplicationError(
       RedeemedRequest,
       context.bindings.inRedeemedRequestBlob
     );
 
-    const mappedRedeemedBonuses: ReadonlyArray<RedeemedBonusMessage> = redeemedRequest.items.map(
+    // Map each message to add a reference to the blob
+    const redeemedBonusesMessages: ReadonlyArray<RedeemedBonusMessage> = redeemedRequest.items.map(
       redeemedBonus => ({
         redeemedBonus,
         redeemedRequestBlob
       })
     );
 
+    // Insert te messages in the queue using the output binding
     // tslint:disable-next-line: no-object-mutation
-    context.bindings.outRedeemedBonusesQueueItems = mappedRedeemedBonuses;
+    context.bindings.outRedeemedBonusesQueueItems = redeemedBonusesMessages;
     context.done();
   };
 };

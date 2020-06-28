@@ -1,6 +1,7 @@
 import { MessageContent } from "io-functions-commons/dist/generated/definitions/MessageContent";
 import { FiscalCode } from "italia-ts-commons/lib/strings";
 
+import { RedeemedRequest } from "../generated/definitions/RedeemedRequest";
 import {
   BonusActivation,
   BonusActivationStatusEnum
@@ -33,3 +34,12 @@ export const aMessageContent = {
     "Message contentttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
   subject: "Message subject"
 } as MessageContent;
+
+export const aRedeemedRequest: RedeemedRequest = {
+  items: [
+    {
+      bonus_code: "AAAAAAAAAAAA",
+      redeemed_at: new Date()
+    }
+  ]
+};
