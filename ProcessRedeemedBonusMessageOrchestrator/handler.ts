@@ -2,6 +2,8 @@ import * as t from "io-ts";
 
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
 
+import { FiscalCode } from "italia-ts-commons/lib/strings";
+
 import {
   BonusActivation,
   BonusActivationStatusEnum
@@ -15,6 +17,10 @@ import {
   ActivityResult as ReplaceBonusActivityResult
 } from "../ReplaceBonusActivity/handler";
 import { ActivityInput as SaveErrorActivityInput } from "../SaveErrorActivity/handler";
+import {
+  ActivityInput as SendMessageActivityInput,
+  ActivityResult as SendMessageActivityResult
+} from "../SendMessageActivity/handler";
 import { TrackEventT, TrackExceptionT } from "../utils/appinsights";
 import { decodeOrThrowApplicationError } from "../utils/decode";
 import {
@@ -22,6 +28,7 @@ import {
   applicationErrorToExceptionTelemetry
 } from "../utils/errors";
 import { GetContextErrorLoggerT } from "../utils/loggers";
+import { getRedeemedBonusMessageContent } from "../utils/messages";
 import { RedeemedBonusMessage } from "../utils/types";
 
 export const OrchestratorInput = RedeemedBonusMessage;
@@ -138,6 +145,62 @@ export const getHandler = (
         throw new ApplicationError(
           replaceBonusActivityResult.reason,
           "", // No details
+          false
+        );
+      }
+      //#endregion
+
+      //#region
+      // STEP 5: Send notification messages
+      // Retrieve the list of the fiscalcodes and sort using localCompare
+      const fiscalCodes = bonus.dsuRequest.familyMembers
+        .map(_ => _.fiscalCode)
+        .sort((a, b) => a.localeCompare(b));
+
+      // tslint:disable-next-line: readonly-array
+      const failedNotifications: FiscalCode[] = [];
+      // For each member send a notification message
+      for (const fiscalCode of fiscalCodes) {
+        try {
+          const sendMessageActivityResultUnencoded = yield context.df.callActivityWithRetry(
+            "SendMessageActivity",
+            {
+              backoffCoefficient: 1.5,
+              firstRetryIntervalInMilliseconds: 1000,
+              maxNumberOfAttempts: 10,
+              maxRetryIntervalInMilliseconds: 3600 * 100,
+              retryTimeoutInMilliseconds: 3600 * 1000
+            },
+            SendMessageActivityInput.encode({
+              checkProfile: true,
+              content: getRedeemedBonusMessageContent(
+                redeemedBonus.redeemed_at
+              ),
+              fiscalCode
+            })
+          );
+
+          const sendMessageActivityResult = decodeOrThrowApplicationError(
+            SendMessageActivityResult,
+            sendMessageActivityResultUnencoded,
+            "Error decoding SendMessageActivity result"
+          );
+
+          if (sendMessageActivityResult.kind === "FAILURE") {
+            throw new Error();
+          }
+        } catch (e) {
+          // If we are here the SendMessageActivity has failed or reached max-retry
+          // We add the fiscalcode to the failures
+          failedNotifications.push(fiscalCode);
+        }
+      }
+
+      if (failedNotifications.length > 0) {
+        // One of the notifications failed
+        throw new ApplicationError(
+          `Error sending notifications to [${failedNotifications.join(",")}]`,
+          "",
           false
         );
       }
