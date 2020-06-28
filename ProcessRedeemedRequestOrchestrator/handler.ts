@@ -30,4 +30,6 @@ export const getHandler = () =>
       "SaveRedeemedRequestAsMessagesActivity",
       SaveRedeemedRequestAsMessagesActivityInput.encode(redeemedRequestBlob)
     );
+
+    return true;
   };
