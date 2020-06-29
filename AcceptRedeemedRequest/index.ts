@@ -10,6 +10,7 @@ import {
   bonusStorageBlobServiceClient,
   uploadTask
 } from "../services/blobServices";
+import { trackEvent, trackException } from "../utils/appinsights";
 import { AcceptRedeemedRequest } from "./handler";
 
 const redeemedRequestsContainerName = getRequiredStringEnv(
@@ -33,7 +34,7 @@ secureExpressApp(app);
 // Add express route
 app.post(
   "/api/bonus-vacanze/v1/redeemed",
-  AcceptRedeemedRequest(uploadRedeemedRequestTask)
+  AcceptRedeemedRequest(uploadRedeemedRequestTask, trackException, trackEvent)
 );
 
 const azureFunctionHandler = createAzureFunctionHandler(app);

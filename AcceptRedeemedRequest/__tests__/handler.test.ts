@@ -19,9 +19,13 @@ describe("AcceptRedeemedRequestHandler", () => {
     const uploadRedeemedRequestTaskMock = jest.fn(() =>
       fromLeft<Error, BlockBlobUploadResponse>(Error())
     );
+    const trackException = jest.fn();
+    const trackEvent = jest.fn();
 
     const result = await AcceptRedeemedRequestHandler(
-      uploadRedeemedRequestTaskMock
+      uploadRedeemedRequestTaskMock,
+      trackException,
+      trackEvent
     )(contextMock, aRedeemedRequest);
 
     expect(result.kind === "IResponseErrorInternal").toBeTruthy();
@@ -33,9 +37,13 @@ describe("AcceptRedeemedRequestHandler", () => {
         right({} as BlockBlobUploadResponse)
       )
     );
+    const trackException = jest.fn();
+    const trackEvent = jest.fn();
 
     const result = await AcceptRedeemedRequestHandler(
-      uploadRedeemedRequestTaskMock
+      uploadRedeemedRequestTaskMock,
+      trackException,
+      trackEvent
     )(contextMock, aRedeemedRequest);
 
     expect(mockStartNew).toHaveBeenCalledWith(

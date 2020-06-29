@@ -65,7 +65,7 @@ export const getHandler = (
       return false;
     }
 
-    const { redeemedBonus, redeemedRequestBlob } = orchestratorInput;
+    const { redeemedBonus, redeemedRequestReference } = orchestratorInput;
 
     try {
       //#region
@@ -220,7 +220,7 @@ export const getHandler = (
           SaveErrorActivityInput.encode({
             id: redeemedBonus.bonus_code,
 
-            requestId: `${redeemedRequestBlob.directory}/${redeemedRequestBlob.name}`,
+            requestId: `${redeemedRequestReference.requestDate}/${redeemedRequestReference.requestId}.json`,
 
             requestPayload: JSON.stringify(redeemedBonus),
 

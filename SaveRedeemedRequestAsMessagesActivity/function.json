@@ -9,7 +9,7 @@
       "name": "inRedeemedRequestBlob",
       "type": "blob",
       "direction": "in",
-      "path": "redeemed-requests/{directory}/{name}",
+      "path": "redeemed-requests/{requestDate}/{requestId}.json",
       "connection": "STORAGE_BONUS_CONNECTION_STRING"
     },
     {
