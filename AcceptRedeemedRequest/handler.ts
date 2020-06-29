@@ -26,6 +26,11 @@ import {
   StatusEnum
 } from "../generated/definitions/RequestAccepted";
 import { OrchestratorInput as ProcessRedeemedRequestOrchestratorInput } from "../ProcessRedeemedRequestOrchestrator/handler";
+import { TrackEventT, TrackExceptionT } from "../utils/appinsights";
+import {
+  getRedeemedRequestBlobPath,
+  RedeemedRequestReference
+} from "../utils/types";
 
 type IAcceptRedeemedRequestHandler = (
   context: Context,
@@ -38,13 +43,33 @@ type IAcceptRedeemedRequestHandler = (
  * Handle the post request
  */
 export function AcceptRedeemedRequestHandler(
-  uploadRedeemedRequestTask: UploadRedeemedRequestTaskT
+  uploadRedeemedRequestTask: UploadRedeemedRequestTaskT,
+  trackException: TrackExceptionT,
+  trackEvent: TrackEventT
 ): IAcceptRedeemedRequestHandler {
   return async (context, redeemedRequest) => {
     // Create identification values for the request
-    const requestId = v4();
     const requestDate = format(new Date(), "yyyy-MM-dd");
-    const blobPath = `${requestDate}/${requestId}.json`;
+    const requestId = v4();
+    const redeemedRequestReference: RedeemedRequestReference = {
+      requestDate,
+      requestId
+    };
+    const blobPath = getRedeemedRequestBlobPath(requestDate, requestId);
+
+    const tagOverrides = {
+      "ai.operation.id": requestId,
+      "ai.operation.parentId": requestId
+    };
+
+    trackEvent({
+      name: "bonusapi.redeemedrequest.received",
+      properties: {
+        ...redeemedRequestReference,
+        number_of_redeemed_bonuses: String(redeemedRequest.items.length)
+      },
+      tagOverrides
+    });
 
     // Save the request as blob
     const errorOrResponse = await uploadRedeemedRequestTask(
@@ -53,20 +78,61 @@ export function AcceptRedeemedRequestHandler(
     ).run();
 
     if (isLeft(errorOrResponse)) {
-      return ResponseErrorInternal("Error saving request");
+      trackEvent({
+        name: "bonusapi.redeemedrequest.accept.failure",
+        properties: {
+          ...redeemedRequestReference,
+          errorMessage: errorOrResponse.value.message
+        },
+        tagOverrides
+      });
+      return ResponseErrorInternal("Error accepting request");
     }
 
-    // Create a new orchestrator to handle the request
-    // We pass the blob info so it can be loaded
-    const client = df.getClient(context);
-    await client.startNew(
-      "ProcessRedeemedRequestOrchestrator",
-      undefined,
-      ProcessRedeemedRequestOrchestratorInput.encode({
-        directory: requestDate,
-        name: `${requestId}.json`
-      })
-    );
+    trackEvent({
+      name: "bonusapi.redeemedrequest.accept.success",
+      properties: {
+        ...redeemedRequestReference
+      },
+      tagOverrides
+    });
+
+    // Try to create a new orchestrator to handle the request
+    try {
+      const client = df.getClient(context);
+      await client.startNew(
+        "ProcessRedeemedRequestOrchestrator",
+        undefined,
+        ProcessRedeemedRequestOrchestratorInput.encode(redeemedRequestReference)
+      );
+
+      trackEvent({
+        name: "bonusapi.redeemedrequest.enqueue.success",
+        properties: {
+          ...redeemedRequestReference
+        },
+        tagOverrides
+      });
+    } catch (e) {
+      // A problem occurred while staring the Orchestrator
+      // Track an exception so we can decide how to remediate
+      trackException({
+        exception: Error("bonusapi.redeemedrequest.enqueue.exception"),
+        properties: {
+          ...redeemedRequestReference,
+          errorMessage: e.message,
+          remedy: "Reprocess the request staring the orchestrator manually"
+        },
+        tagOverrides
+      });
+      trackEvent({
+        name: "bonusapi.redeemedrequest.enqueue.failure",
+        properties: {
+          ...redeemedRequestReference
+        },
+        tagOverrides
+      });
+    }
 
     return ResponseSuccessAccepted(undefined, {
       status: StatusEnum.OK
@@ -75,9 +141,15 @@ export function AcceptRedeemedRequestHandler(
 }
 
 export function AcceptRedeemedRequest(
-  uploadRedeemedRequestTask: UploadRedeemedRequestTaskT
+  uploadRedeemedRequestTask: UploadRedeemedRequestTaskT,
+  trackException: TrackExceptionT,
+  trackEvent: TrackEventT
 ): express.RequestHandler {
-  const handler = AcceptRedeemedRequestHandler(uploadRedeemedRequestTask);
+  const handler = AcceptRedeemedRequestHandler(
+    uploadRedeemedRequestTask,
+    trackException,
+    trackEvent
+  );
 
   const middlewaresWrap = withRequestMiddlewares(
     // Extract Azure Functions bindings

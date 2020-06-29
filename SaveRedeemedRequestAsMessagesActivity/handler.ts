@@ -4,9 +4,9 @@ import { Context } from "@azure/functions";
 
 import { RedeemedRequest } from "../generated/definitions/RedeemedRequest";
 import { decodeOrThrowApplicationError } from "../utils/decode";
-import { RedeemedBonusMessage, RedeemedRequestBlob } from "../utils/types";
+import { RedeemedBonusMessage, RedeemedRequestReference } from "../utils/types";
 
-export const ActivityInput = RedeemedRequestBlob;
+export const ActivityInput = RedeemedRequestReference;
 export type ActivityInput = t.TypeOf<typeof ActivityInput>;
 
 /**
@@ -15,8 +15,8 @@ export type ActivityInput = t.TypeOf<typeof ActivityInput>;
 export const getSaveRedeemedRequestAsMessagesActivity = () => {
   return async (context: Context, input: unknown): Promise<void> => {
     // Decode the input
-    const redeemedRequestBlob = decodeOrThrowApplicationError(
-      RedeemedRequestBlob,
+    const redeemedRequestReference = decodeOrThrowApplicationError(
+      RedeemedRequestReference,
       input
     );
 
@@ -30,7 +30,7 @@ export const getSaveRedeemedRequestAsMessagesActivity = () => {
     const redeemedBonusesMessages: ReadonlyArray<RedeemedBonusMessage> = redeemedRequest.items.map(
       redeemedBonus => ({
         redeemedBonus,
-        redeemedRequestBlob
+        redeemedRequestReference
       })
     );
 
