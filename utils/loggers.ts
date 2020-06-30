@@ -67,5 +67,5 @@ export type GetContextErrorLoggerT = typeof getContextErrorLogger;
 
 export const defaultTableStorageErrorLogger = getTableStorageErrorLogger(
   bonusStorageTableService,
-  "RedeemedErrors"
+  "redeemederrors"
 );
