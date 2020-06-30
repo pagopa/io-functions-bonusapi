@@ -1,29 +1,6 @@
-import { AzureFunction, Context } from "@azure/functions";
-import * as df from "durable-functions";
+import { trackEvent, trackException } from "../utils/appinsights";
+import { getHandler } from "./handler";
 
-import { OrchestratorInput as ProcessRedeemedBonusMessageOrchestratorInput } from "../ProcessRedeemedBonusMessageOrchestrator/handler";
-import { decodeOrThrowApplicationError } from "../utils/decode";
-import { RedeemedBonusMessage } from "../utils/types";
+const handler = getHandler(trackException, trackEvent);
 
-/**
- * Listen to new message from the queue and for each start the orchestrator that process it
- */
-export const index: AzureFunction = async (
-  context: Context,
-  inRedeemedBonusesQueueItem: unknown
-): Promise<void> => {
-  const redeemedBonusMessage = decodeOrThrowApplicationError(
-    RedeemedBonusMessage,
-    inRedeemedBonusesQueueItem
-  );
-
-  const client = df.getClient(context);
-
-  await client.startNew(
-    "ProcessRedeemedBonusMessageOrchestrator",
-    undefined,
-    ProcessRedeemedBonusMessageOrchestratorInput.encode(redeemedBonusMessage)
-  );
-
-  context.done();
-};
+export default handler;

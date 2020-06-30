@@ -128,7 +128,8 @@ export function AcceptRedeemedRequestHandler(
       trackEvent({
         name: "bonusapi.redeemedrequest.enqueue.failure",
         properties: {
-          ...redeemedRequestReference
+          ...redeemedRequestReference,
+          errorMessage: e.message
         },
         tagOverrides
       });

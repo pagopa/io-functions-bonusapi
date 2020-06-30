@@ -1,3 +1,5 @@
+// tslint:disable no-big-function
+
 import * as t from "io-ts";
 
 import { IOrchestrationFunctionContext } from "durable-functions/lib/src/classes";
@@ -46,7 +48,13 @@ export const getHandler = (
   trackEvent: TrackEventT
 ) =>
   function*(context: IOrchestrationFunctionContext): Generator {
-    context.log(`${logPrefix}|Orchestrator started`);
+    const ifNoInReplay = (fn: () => unknown) => {
+      if (!context.df.isReplaying) {
+        fn();
+      }
+    };
+
+    ifNoInReplay(() => context.log(`${logPrefix}|Orchestrator started`));
 
     const contextErrorLogger = getContextErrorLogger(context, logPrefix);
 
@@ -67,7 +75,23 @@ export const getHandler = (
 
     const { redeemedBonus, redeemedRequestReference } = orchestratorInput;
 
+    const tagOverrides = {
+      "ai.operation.id": redeemedBonus.bonus_code,
+      "ai.operation.parentId": redeemedRequestReference.requestId
+    };
+
     try {
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.process.started",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference
+          },
+          tagOverrides
+        })
+      );
+
       //#region
       // STEP 1: Read the bonus from the db
       // If max retry is reached the ApplicationError raised by the activity is handled in the catch block
@@ -99,6 +123,17 @@ export const getHandler = (
           false
         );
       }
+
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.bonusread.success",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference
+          },
+          tagOverrides
+        })
+      );
       //#endregion
 
       const { bonus } = readBonusActivityResult;
@@ -148,6 +183,17 @@ export const getHandler = (
           false
         );
       }
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.bonusreplace.success",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference
+          },
+          tagOverrides
+        })
+      );
+
       //#endregion
 
       //#region
@@ -204,16 +250,62 @@ export const getHandler = (
           false
         );
       }
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.bonusnotify.success",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference
+          },
+          tagOverrides
+        })
+      );
+
       //#endregion
 
-      trackEvent({
-        name: "TEST_PROCESS_REDEEMED_BONUS_SUCCESS"
-      });
+      // Final result
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.process.success",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference
+          },
+          tagOverrides
+        })
+      );
 
       return true;
     } catch (e) {
       contextErrorLogger(e);
-      trackException(applicationErrorToExceptionTelemetry(e));
+
+      // Final result
+      ifNoInReplay(() =>
+        trackException({
+          exception: Error("bonusapi.redeemedbonusmessage.process.exception"),
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference,
+            errorMessage: e.message,
+            remedy: "Need valuation"
+          },
+          tagOverrides
+        })
+      );
+
+      ifNoInReplay(() =>
+        trackEvent({
+          name: "bonusapi.redeemedbonusmessage.process.failure",
+          properties: {
+            ...redeemedBonus,
+            ...redeemedRequestReference,
+            errorMessage: e.message
+          },
+          tagOverrides
+        })
+      );
+
+      // Try to save the error also in the storage table
       if (e instanceof Error) {
         yield context.df.callActivity(
           "SaveErrorActivity",
