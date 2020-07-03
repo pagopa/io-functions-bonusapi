@@ -63,7 +63,7 @@ export const getReadBonusActivityHandler = (
         .fold(
           err => {
             throw new ApplicationError(
-              "Error reading BonusActivation",
+              `Error reading BonusActivation: ${err.message}`,
               err.message,
               true
             );

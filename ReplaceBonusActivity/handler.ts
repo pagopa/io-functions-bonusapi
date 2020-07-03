@@ -59,7 +59,7 @@ export const getReplaceBonusActivityHandler = (
         .fold(
           err => {
             throw new ApplicationError(
-              "Error replacing BonusActivation",
+              `Error replacing BonusActivation: ${err.message}`,
               err.message,
               true
             );
