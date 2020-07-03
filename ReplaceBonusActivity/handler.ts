@@ -5,6 +5,7 @@ import { Context } from "@azure/functions";
 import { BonusActivation } from "../models/bonus_activation";
 import { decodeOrThrowApplicationError } from "../utils/decode";
 import { ApplicationError } from "../utils/errors";
+import { GetContextErrorLoggerT } from "../utils/loggers";
 import { RetrieveBonusActivationTaskT } from "./";
 
 export const ActivityInput = BonusActivation;
@@ -43,9 +44,12 @@ const logPrefix = "ReplaceBonusActivity";
  * Replace the bonus in the db
  */
 export const getReplaceBonusActivityHandler = (
+  getContextErrorLogger: GetContextErrorLoggerT,
   replaceBonusActivationTask: ReturnType<RetrieveBonusActivationTaskT>
 ) => {
   return async (context: Context, input: unknown): Promise<ActivityResult> => {
+    const contextErrorLogger = getContextErrorLogger(context, logPrefix);
+
     context.log.verbose(`${logPrefix}|Activity started`);
 
     try {
@@ -59,7 +63,7 @@ export const getReplaceBonusActivityHandler = (
         .fold(
           err => {
             throw new ApplicationError(
-              "Error replacing BonusActivation",
+              `Error replacing BonusActivation: ${err.message}`,
               err.message,
               true
             );
@@ -68,6 +72,8 @@ export const getReplaceBonusActivityHandler = (
         )
         .run();
     } catch (e) {
+      contextErrorLogger(e);
+
       if (e instanceof ApplicationError) {
         if (e.rethrow) {
           // Rethrow

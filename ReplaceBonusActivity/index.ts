@@ -10,6 +10,7 @@ import {
   cosmosBonusClient,
   replaceContainerItemTask
 } from "../services/cosmosServices";
+import { getContextErrorLogger } from "../utils/loggers";
 import { getReplaceBonusActivityHandler } from "./handler";
 
 const cosmosdbBonusDatabaseName = getRequiredStringEnv(
@@ -33,6 +34,7 @@ const replaceBonusActivationTask = (bac: Container) => (
 export type RetrieveBonusActivationTaskT = typeof replaceBonusActivationTask;
 
 const replaceBonusActivityHandler = getReplaceBonusActivityHandler(
+  getContextErrorLogger,
   replaceBonusActivationTask(bonusActivationContainer)
 );
 export default replaceBonusActivityHandler;
