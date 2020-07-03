@@ -6,6 +6,7 @@ import { ReadBonusActivationTaskT } from ".";
 import { BonusActivation } from "../models/bonus_activation";
 import { decodeOrThrowApplicationError } from "../utils/decode";
 import { ApplicationError } from "../utils/errors";
+import { GetContextErrorLoggerT } from "../utils/loggers";
 
 export const ActivityInput = t.interface({
   bonusId: t.string
@@ -47,9 +48,12 @@ const logPrefix = "ReadBonusActivity";
  * Read the bonus from the db
  */
 export const getReadBonusActivityHandler = (
+  getContextErrorLogger: GetContextErrorLoggerT,
   readBonusActivationTask: ReturnType<ReadBonusActivationTaskT>
 ) => {
   return async (context: Context, input: unknown): Promise<ActivityResult> => {
+    const contextErrorLogger = getContextErrorLogger(context, logPrefix);
+
     context.log.verbose(`${logPrefix}|Activity started`);
 
     try {
@@ -79,6 +83,8 @@ export const getReadBonusActivityHandler = (
         )
         .run();
     } catch (e) {
+      contextErrorLogger(e);
+
       if (e instanceof ApplicationError) {
         if (e.rethrow) {
           // Rethrow
