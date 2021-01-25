@@ -55,3 +55,5 @@ generated
 
 obj
 azure-functions-core-tools
+
+.DS_Store

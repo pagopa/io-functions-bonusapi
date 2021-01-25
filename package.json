@@ -26,15 +26,11 @@
     "generate:definitions-bonusapi": "gen-api-models --request-types --api-spec ./openapi/index.yaml --out-dir ./generated/definitions",
     "generate": "npm-run-all generate:*",
     "preversion": "auto-changelog  --config .auto-changelog.json --unreleased --commit-limit false --stdout --template preview.hbs",
-    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md",
-
-    "prebuild:sdk": "npm-run-all generate:sdk",
-    "build:sdk": "npm-run-all prebuild:sdk && (cd generated/io-bonusapi-sdk && tsc ./*)",
-    "generate:sdk": "shx rm -rf generated/io-bonusapi-sdk && shx mkdir -p generated/io-bonusapi-sdk && gen-api-models --strict 0 --api-spec openapi/index.yaml --out-dir generated/io-bonusapi-sdk --request-types --response-decoders  --client"
-
+    "version": "auto-changelog -p --config .auto-changelog.json --unreleased && git add CHANGELOG.md"
   },
   "devDependencies": {
     "@azure/functions": "^1.0.3",
+    "@pagopa/openapi-codegen-ts": "^7.0.0",
     "@types/bluebird": "^3.5.32",
     "@types/documentdb": "^1.10.5",
     "@types/express": "^4.16.0",
@@ -47,7 +43,6 @@
     "danger": "^4.0.2",
     "danger-plugin-digitalcitizenship": "^0.3.1",
     "italia-tslint-rules": "*",
-    "italia-utils": "^4.3.0",
     "jest": "^24.8.0",
     "jest-mock-express": "^0.1.1",
     "js-yaml": "^3.14.0",
