@@ -2,16 +2,21 @@
 
 parameters:
 
-  - name: 'dependsOn'
-    type: object
-    default: []
+  - name: 'openapiSpecPath'
+    type: string
 
   - name: 'projectDir'
     type: string
     default: '.'
 
-  - name: 'openapiSpecPath'
+  - name: 'sdkPackageName'
     type: string
+    default: ''
+  
+  - name: 'dependsOn'
+    type: object
+    default: []
+
 
 
 stages:
@@ -22,8 +27,18 @@ stages:
    dependsOn: ${{parameters.dependsOn}}
 
    variables:
-    openapiSpecPath_withProjectDir: '${{ parameters.projectDir }}/${{ parameters.openapiSpecPath }}'
-    generatedCodeDir: '$(Agent.TempDirectory)/generated'
+    - name: 'codegenPackageNameParameter'
+      ${{ if eq(parameters.sdkPackageName, '') }}:
+        value: ''
+      ${{ if ne(parameters.sdkPackageName, '') }}:
+        value: '--package-name ${{parameters.sdkPackageName}}'
+    
+    - name: 'openapiSpecPath_withProjectDir'
+      value: '${{ parameters.projectDir }}/${{ parameters.openapiSpecPath }}'
+    - name: 'generatedCodeDir'
+      value: '$(Agent.TempDirectory)/generated'
+
+
 
    pool:
      vmImage: 'ubuntu-latest'
@@ -33,7 +48,7 @@ stages:
          - checkout: self
 
          - script: |
-             npx -p @pagopa/openapi-codegen-ts gen-api-sdk --api-spec ${{ variables.openapiSpecPath_withProjectDir }} --out-dir ${{variables.generatedCodeDir}} --client
+             npx -p @pagopa/openapi-codegen-ts gen-api-sdk --api-spec ${{ variables.openapiSpecPath_withProjectDir }} --out-dir ${{variables.generatedCodeDir}} ${{variables.codegenPackageNameParameter}} --client
            displayName: 'Generate client and definitions'
          
          - script: |

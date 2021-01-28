@@ -73,5 +73,6 @@ stages:
     parameters:
       dependsOn: [Release]
       openapiSpecPath: 'openapi/index.yaml'
+      sdkPackageName: '@pagopa/test-package-name'
      
  
