@@ -71,6 +71,7 @@ stages:
   # Template for generating and deploying client SDk to NPM
   - template: azure-templates/deploy-client-sdk.yml
     parameters:
-      dependsOn: Release
+      dependsOn: [Release]
+      openapiSpecPath: 'openapi/index.yaml'
      
  

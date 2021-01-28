@@ -3,8 +3,8 @@
 parameters:
 
   - name: 'dependsOn'
-    type: string
-    default: 'No_Name'
+    type: object
+    default: []
 
   - name: 'projectDir'
     type: string
@@ -19,8 +19,7 @@ stages:
  # Prepare SDK
  # make this stage run after Release, so package.json will be automatically updated
  - stage: Prepare_SDK_Artifact_And_Release  
-   dependsOn: ['${{parameters.dependsOn}}']
-   
+   dependsOn: ${{parameters.dependsOn}}
 
    variables:
     openapiSpecPath_withProjectDir: '${{ parameters.projectDir }}/${{ parameters.openapiSpecPath }}'
@@ -47,7 +46,7 @@ stages:
  
          - task: CopyFiles@2
            inputs:
-             SourceFolder: '$(System.DefaultWorkingDirectory)/${{variables.generatedCodeDir}}'
+             SourceFolder: '${{variables.generatedCodeDir}}'
              TargetFolder: '$(System.DefaultWorkingDirectory)/bundle_sdk'
              # The list of files to be considered is determined by the "files" entry in package.json
              Contents: |
