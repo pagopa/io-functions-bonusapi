@@ -42,22 +42,7 @@ resources:
 
 stages:
 
-  # Create a relase
-  # Activated when ONE OF these are met:
-  # - is on branch master 
-  # - is a tag in the form v{version}-RELEASE
   - stage: Release
-    # condition:
-    #   and(
-    #     succeeded(),
-    #     or(
-    #       eq(variables['Build.SourceBranch'], 'refs/heads/master'),
-    #       and(
-    #         startsWith(variables['Build.SourceBranch'], 'refs/tags'),
-    #         endsWith(variables['Build.SourceBranch'], '-RELEASE')
-    #       )
-    #     )
-    #   )
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
@@ -65,7 +50,7 @@ stages:
         steps:
           - script: |
               echo "Ciao.. questo è un test"
-            displayName: 'Skip release bundle'
+            displayName: 'Fake release step'
 
   
   # Template for generating and deploying client SDk to NPM

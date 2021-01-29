@@ -27,18 +27,9 @@ stages:
    dependsOn: ${{parameters.dependsOn}}
 
    variables:
-    - name: 'codegenPackageNameParameter'
-      ${{ if eq(parameters.sdkPackageName, '') }}:
-        value: ''
-      ${{ if ne(parameters.sdkPackageName, '') }}:
-        value: '--package-name ${{parameters.sdkPackageName}}'
-    
-    - name: 'openapiSpecPath_withProjectDir'
-      value: '${{ parameters.projectDir }}/${{ parameters.openapiSpecPath }}'
-    - name: 'generatedCodeDir'
-      value: '$(Agent.TempDirectory)/generated'
-
-
+      openapiSpecPath_withProjectDir: '${{ parameters.projectDir }}/${{ parameters.openapiSpecPath }}'
+      generatedCodeDir: '$(Agent.TempDirectory)/generated'
+      #codegenPackageNameParameter set with condition in 'setvarStep' script
 
    pool:
      vmImage: 'ubuntu-latest'
@@ -47,8 +38,14 @@ stages:
        steps:
          - checkout: self
 
-         - script: |
-             npx -p @pagopa/openapi-codegen-ts gen-api-sdk --api-spec ${{ variables.openapiSpecPath_withProjectDir }} --out-dir ${{variables.generatedCodeDir}} ${{variables.codegenPackageNameParameter}} --client
+         - bash: |
+             [ "${{parameters.sdkPackageName}}" == "" ] && PKG_NAME_PARAM='' || PKG_NAME_PARAM='--package-name ${{parameters.sdkPackageName}}'  
+             echo "##vso[task.setvariable variable=codegenPackageNameParameter;]$PKG_NAME_PARAM"
+           name: setvarStep
+           displayName: 'Setup conditional variables'
+
+         - bash: |
+             npx -p @pagopa/openapi-codegen-ts gen-api-sdk --api-spec ${{ variables.openapiSpecPath_withProjectDir }} --out-dir ${{variables.generatedCodeDir}} $(codegenPackageNameParameter) --client
            displayName: 'Generate client and definitions'
          
          - script: |
