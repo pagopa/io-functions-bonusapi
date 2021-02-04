@@ -39,6 +39,12 @@ resources:
       name: pagopa/azure-pipeline-templates
       ref: refs/tags/v4
       endpoint: 'pagopa'
+    
+    - repository: templates
+      type: github
+      name: pagopa/azure-pipeline-templates
+      ref: refs/heads/171728280_client_SDK_generation
+      endpoint: 'pagopa'
 
 stages:
 
@@ -53,11 +59,15 @@ stages:
             displayName: 'Fake release step'
 
   
-  # Template for generating and deploying client SDk to NPM
-  - template: azure-templates/deploy-client-sdk.yml
-    parameters:
-      dependsOn: [Release]
-      openapiSpecPath: 'openapi/index.yaml'
-      sdkPackageName: '@pagopa/test-package-name'
+  
+
+  - stage: Publish Client SDK to NPM
+    dependsOn: []
+    jobs:
+      - job:    
+      # Template for generating and deploying client SDk to NPM
+      - template: templates/client-sdk-release/template.yaml@templates
+        parameters:
+          openapiSpecPath: 'openapi/index.yaml'
      
  
