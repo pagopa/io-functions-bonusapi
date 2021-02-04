@@ -61,7 +61,7 @@ stages:
   
   
 
-  - stage: Publish Client SDK to NPM
+  - stage: PublishClientSDKtoNPM
     dependsOn: []
     jobs:
       - job: publish_SDK   
