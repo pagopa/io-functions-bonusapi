@@ -62,7 +62,9 @@ stages:
   
 
   - stage: PublishClientSDKtoNPM
-    dependsOn: []
+    dependsOn: []    
+    pool:
+      vmImage: 'ubuntu-latest'
     jobs:
       - job: publish_SDK   
         
