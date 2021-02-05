@@ -62,7 +62,7 @@ stages:
   
 
   - stage: PublishClientSDKtoNPM
-    dependsOn: []    
+    dependsOn: Release    
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
@@ -70,7 +70,7 @@ stages:
         
         steps:
         # Template for generating and deploying client SDk to NPM
-        - template: templates/client-sdk-release/template.yaml@templates
+        - template: templates/client-sdk-publish/template.yaml@templates
           parameters:
             openapiSpecPath: 'openapi/index.yaml'
      

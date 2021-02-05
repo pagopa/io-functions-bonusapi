@@ -89,17 +89,27 @@ stages:
 
   # Publish client SDK to 
   - stage: PublishClientSDKtoNPM
-    dependsOn: []
+    dependsOn: Release
+    variables:
+      verdaccioUrl: 'http://localhost:4873'  
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
       - job: publish_SDK   
         
         steps:
+
+        #Start Verdaccio
+        - bash: |
+            docker run -d --rm --name verdaccio -p 4873:4873 verdaccio/verdaccio 
+            sleep 5
+          displayName: 'Start verdaccio'
+
         # Template for generating and deploying client SDk to NPM
-        - template: templates/client-sdk-release/template.yaml@templates
+        - template: templates/client-sdk-publish/template.yaml@templates
           parameters:
             openapiSpecPath: 'openapi/index.yaml'
+
 
   # Prepare Artifact
   - stage: Deploy_staging
