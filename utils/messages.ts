@@ -12,7 +12,7 @@ export const getRedeemedBonusMessageContent = (
 
 Da questo momento in poi, lo troverai sempre nella sezione Portafoglio, con la dicitura ""Utilizzato"".
 
-Ti ricordiamo che l'utente a cui è intestata la fattura del pagamento alla struttura ricettiva scelta ha diritto a detrarre, nella prossima dichiarazione dei redditi, l'importo specificato nel dettaglio del Bonus Vacanze.
+Ti ricordiamo che l'utente a cui è intestata la fattura del pagamento (effettuato direttamente alla struttura ricettiva scelta, oppure all'agenzia viaggi o al tour operator) ha diritto a detrarre, nella prossima dichiarazione dei redditi, l'importo specificato nel dettaglio del Bonus Vacanze.
 Attenzione: se il prezzo pagato per la vacanza è inferiore all'importo massimo del bonus riconosciuto, la detrazione va ricalcolata: sarà pari al 20% della somma pagata alla struttura ricettiva
 `,
     subject: "Il tuo Bonus Vacanze è stato utilizzato con successo!"
